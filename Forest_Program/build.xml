@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Forest" default="all" basedir=".">
+
+	<property name="package" value="forest" />
+	<property name="mvc" value="mvc" />
+	<property name="packagenames" value="${package},${mvc}" />
+	<property name="destdir" value="./Classes" />
+	<property name="docdir" value="./JavaDoc" />
+	<property name="instdir" value="./${ant.project.name}.app/Contents/Resources/Java" />
+	<property name="copyright" value="Copyright 2008-2017 AOKI Atsushi. All Rights Reserved." />
+	<property name="zipname" value="${ant.project.name}" />
+
+	<target name="all" depends="jar" description="build all">
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="prepare" depends="" description="prepare to compile">
+		<mkdir dir="${destdir}" />
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="compile" depends="prepare" description="compile all sources">
+		<javac
+			fork="true"
+			srcdir="${basedir}"
+			destdir="${destdir}"
+			includeAntRuntime="true"
+			encoding="UTF-8"
+			deprecation="on"
+			verbose="false">
+			<compilerarg value="-J-Dfile.encoding=UTF8" />
+			<compilerarg value="-Xlint:all" />
+			<classpath>
+				<pathelement location="." />
+				<pathelement location="${mvc}.jar" />
+			</classpath>
+		</javac>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="jar" depends="compile" description="make jar file">
+		<jar
+			jarfile="${package}.jar"
+			basedir="${destdir}"
+			manifest="${package}.mf">
+			<zipfileset src="${mvc}.jar" />
+		</jar>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="clean" description="cleaning">
+		<delete dir="${destdir}" />
+		<delete file="${package}.jar" />
+		<delete dir="${docdir}" />
+		<delete dir="${instdir}" />
+		<delete file="../${zipname}.zip" />
+		<delete>
+			<fileset dir="${package}" includes="*.class" />
+		</delete>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="test" depends="all,tree" description="test">
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="tree" depends="all" description="tree">
+		<exec executable="java" spawn="false">
+			<arg line="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar ${package}.jar resource/data/tree.txt" />
+		</exec>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="forest" depends="all" description="forest">
+		<exec executable="java" spawn="false">
+			<arg line="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar ${package}.jar resource/data/forest.txt" />
+		</exec>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="semilattice" depends="all" description="semilattice">
+		<exec executable="java" spawn="false">
+			<arg line="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar ${package}.jar resource/data/semilattice.txt" />
+		</exec>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="install" depends="all" description="install into application">
+		<copy file="${package}.jar" todir="${instdir}" />
+		<copy file="resource/data/forest.txt" todir="${instdir}" />
+		<exec executable="chmod">
+			<arg line="755 ${instdir}/../../MacOS/applet" />
+		</exec>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="doc" depends="all" description="make document (javadoc)">
+		<mkdir dir="${docdir}" />
+		<javadoc
+			locale="ja_JP"
+			sourcepath="${basedir}"
+			destdir="${docdir}"
+			packagenames="${packagenames}"
+			author="true"
+			version="true"
+			charset="UTF-8"
+			encoding="UTF-8"
+			docencoding="UTF-8"
+			linksource="yes"
+			additionalparam="-J-Dfile.encoding=UTF-8"
+			access="private">
+			<doctitle>${doc-title}</doctitle>
+			<bottom>${copyright}</bottom>
+			<classpath>
+				<pathelement location="." />
+				<pathelement location="${mvc}.jar" />
+			</classpath>
+		</javadoc>
+		<exec executable="open">
+			<arg line="-a /Applications/Safari.app ${docdir}/index.html" />
+		</exec>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="zip" depends="clean" description="make zip file">
+		<delete file="../${zipname}.zip" />
+		<zip destfile="../${zipname}.zip">
+			<zipfileset dir="." prefix="${zipname}" />
+		</zip>
+		<exec executable="date" spawn="false" />
+	</target>
+
+</project>
