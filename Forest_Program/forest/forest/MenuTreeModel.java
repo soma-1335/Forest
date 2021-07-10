@@ -1,3 +1,7 @@
+package forest;
+
+import java.awt.image.BufferedImage;
+import java.awt.event.ActionEvent;
 /**
  * 一次元ウェーブレット変換のメニュー項目を作成、保持するクラス。
  */

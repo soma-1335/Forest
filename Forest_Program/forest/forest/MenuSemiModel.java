@@ -1,17 +1,22 @@
+package forest;
+
+import java.awt.image.BufferedImage;
+import java.awt.event.ActionEvent;
+
 /**
  * 二次元ウェーブレット変換のメニュー項目を作成、保持するクラス。
  */
-public class MenuForestModel extends MenuModel {
+public class MenuSemiModel extends MenuModel {
 
 	private String label = "";
 
-	private MenuModel listener = null;
+	private MenuModel listener;
 
-	public void MenuForestModel() {
+	public void MenuSemiModel() {
 
 	}
 
-	public void MenuForestModel(BufferedImage anImage, String aString, MenuModel aModel) {
+	public void MenuSemiModel(BufferedImage anImage, String aString, MenuModel aModel) {
 
 	}
 

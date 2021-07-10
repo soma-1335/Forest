@@ -1,3 +1,11 @@
+package forest;
+
+import java.awt.event.ActionEvent;
+import java.util.List;
+
+import javax.swing.JButton;
+
+
 /**
  * MenuModelとMenuViewのペアを作るクラス
  */
@@ -7,7 +15,6 @@ public class MenuController {
 
 	private MenuView menuView;
 
-	private MenuModel menuModel;
 
 	public void MenuController() {
 
