@@ -1,3 +1,8 @@
+package forest;
+
+import java.util.ArrayList;
+import java.awt.Point;
+
 public class Root {
 
 	private ArrayList roots;

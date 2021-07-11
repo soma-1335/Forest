@@ -1,3 +1,9 @@
+package forest;
+
+import java.util.List;
+
+import javax.swing.JButton;
+
 /**
  * メニュー項目の描画を担当するクラス
  */
