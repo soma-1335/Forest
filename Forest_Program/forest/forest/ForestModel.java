@@ -121,7 +121,7 @@ public class ForestModel extends Model {
 				Dimension size = node.getPreferredSize();
 				node.setBounds(x, y,size.width, size.height);
 				nodeList.add(node);
-				y += 10;
+				y += 15;
 			}
 		}
 
