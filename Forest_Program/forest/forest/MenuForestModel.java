@@ -11,7 +11,7 @@ public class MenuForestModel extends MenuModel {
 	private MenuModel listener = null;
 
 	public void MenuForestModel() {
-
+		
 	}
 
 	public void MenuForestModel(BufferedImage anImage, String aString, MenuModel aModel) {

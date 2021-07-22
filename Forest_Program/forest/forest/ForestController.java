@@ -1,45 +1,17 @@
 package forest;
 
-import java.awt.event.MouseEvent;
+import mvc.Controller;
 
-public class ForestController extends eventModel {
+public class ForestController extends Controller {
 
 	private ForestView forestView;
 
 	private ForestModel forestModel;
 
-	public void ForestController() {
-
+	public ForestController() {
+		super();
 	}
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	
 }
