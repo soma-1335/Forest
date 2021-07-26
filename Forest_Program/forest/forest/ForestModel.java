@@ -33,6 +33,10 @@ public class ForestModel extends Model {
 
 	private List<Node> nodeList;
 
+	private List<Node> rootList;
+
+	private Map<Integer,Node> nodeMap;
+
 	public ForestModel(File file){
 		super();
 		List<String> aList = readFile(file);
@@ -69,12 +73,12 @@ public class ForestModel extends Model {
 
 				case 2:
 					List<String> strList1 = Arrays.asList(str.split(","));
-					indexMap.put(Integer.valueOf(strList1.get(0)) , strList1.get(1));
+					indexMap.put(Integer.valueOf(strList1.get(0)) , strList1.get(1).trim());
 					break;
 				
 				case 3:
 					List<String> strList2 = Arrays.asList(str.split(","));
-					linkMap.merge(strList2.get(0),strList2.get(1) ,
+					linkMap.merge(strList2.get(0),strList2.get(1).trim() ,
 									(v1,v2) -> {
 										return v1.toString() + "," + v2.toString();
 									});
@@ -108,50 +112,76 @@ public class ForestModel extends Model {
 
 	public void paform(){
 		nodeList = new ArrayList<Node>();
+		rootList = new ArrayList<Node>();
+		nodeMap = new HashMap<Integer,Node>();
 		
+		int x = 0;
+		int y = 0;
 		//Nodeに深さと名前を振る
 		for(var entrySet: deepMap.entrySet())
 		{
 			String[] strs = entrySet.getValue().split(",");
-			int x = 0;
-			int y = 0;
+			
 			for(String str : strs)
 			{
-				Node node = new Node(entrySet.getKey(), str);
-				Dimension size = node.getPreferredSize();
-				node.setBounds(x, y,size.width, size.height);
+				Node node = new Node(this,entrySet.getKey(), str,x,y);
 				nodeList.add(node);
 				y += 15;
 			}
 		}
 
-		nodeList = notRepetition(nodeList);
+		//nodeList = notRepetition(nodeList);
 
 		//Nodeに番号を振る
 		for(var entrySet : indexMap.entrySet())
 		{
-			nodeList.stream()
-					.takeWhile(node -> node.getName().equals(entrySet.getValue()))
-					.forEach(node -> node.addNumberList(entrySet.getKey()));
+			for(Node node : nodeList){
+				if(node.getName().equals(entrySet.getValue())){
+					node.addNumberList(entrySet.getKey());
+					nodeMap.put(entrySet.getKey(), node);
+				}
+				
+			}
+			// nodeList.stream()
+			// 		.takeWhile(node -> node.getName().equals(entrySet.getValue()))
+			// 		.forEach(node -> node.addNumberList(entrySet.getKey()));
 		}
 
-		//Nodeに子要素を振る
+		// //Nodeに子要素を振る
+		// for(var entrySet : linkMap.entrySet())
+		// {
+		// 	for(Node node: nodeList){
+		// 		if(node.sameNumberList(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
+		// 	}
+		// 	// nodeList.stream()
+		// 	// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
+		// 	// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
+		// }
+
+
+		rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
+
 		for(var entrySet : linkMap.entrySet())
 		{
-			nodeList.stream()
-					.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
-					.forEach(node -> node.addChildren(entrySet.getValue()));
+			Node node = nodeMap.get(Integer.valueOf(entrySet.getKey()));
+			String[] strs = entrySet.getValue().split(",");
+			for(String str : strs){
+				node.addChildren(nodeMap.get(Integer.valueOf(str)));
+			}
+			
 		}
 
-
+		this.changed();
 	}
 
+	//Node名が同じものをなくす
 	public List<Node> notRepetition(List<Node> list){
 		Set set = new HashSet<String>();
 		List<Node> aList = list.stream().filter(str -> set.add(str.getName()))
 							.collect(Collectors.toList());
 		return aList;
 	}
+
 
 	public Integer getIndex(String str){
 		Integer index = null;
@@ -170,6 +200,31 @@ public class ForestModel extends Model {
 	}
 
 	public void animate(){
-		this.changed();
+		Dimension windowSize = new Dimension(800,600);
+		int xoffset = (windowSize.width - 100) / deepMap.size();
+		// List<Integer> yoffset = new ArrayList<Integer>();
+		// List<Integer> countList = new ArrayList<Integer>();
+		// for(var set: deepMap.entrySet())
+		// {
+		// 	String[] strs = set.getValue().split(",");
+		// 	int y = (windowSize.height - 100) / strs.length  ;
+		// 	yoffset.set(Integer.parseInt(set.getKey()),y);
+		// 	countList.add(1);
+		// }
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int yoffset =  (windowSize.height - 100) / (rootList.size()+1);
+		Point point = new Point(20,yoffset);
+		for(Node root : rootList)
+		{
+			root.computePoint(point,0,xoffset,60);
+			point.y += yoffset;
+		}
+		
 	}
 }
