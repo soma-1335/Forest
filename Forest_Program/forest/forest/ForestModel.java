@@ -28,15 +28,15 @@ public class ForestModel extends Model {
 	
 	private Map<String,String> deepMap; 
 
-	private Map<Integer,String>	indexMap;
+	public Map<Integer,String>	indexMap;
 
-	private Map<String,String> linkMap;
+	public Map<String,String> linkMap;
 
-	private List<Node> nodeList;
+	public List<Node> nodeList;
 
 	private List<Node> rootList;
 
-	private Map<Integer,Node> nodeMap;
+	public Map<Integer,Node> nodeMap;
 
 	public ForestModel(File file){
 		super();
@@ -148,16 +148,16 @@ public class ForestModel extends Model {
 			// 		.forEach(node -> node.addNumberList(entrySet.getKey()));
 		}
 
-		// //Nodeに子要素を振る
-		// for(var entrySet : linkMap.entrySet())
-		// {
-		// 	for(Node node: nodeList){
-		// 		if(node.sameNumberList(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
-		// 	}
-		// 	// nodeList.stream()
-		// 	// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
-		// 	// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
-		// }
+		//Nodeに子要素を振る
+		for(var entrySet : linkMap.entrySet())
+		{
+			for(Node node: nodeList){
+				if(node.sameNumberList(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
+			}
+			nodeList.stream()
+					.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
+					.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
+		}
 
 
 		rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
@@ -233,7 +233,7 @@ public class ForestModel extends Model {
 				if(value.getDeep().equals(i)){list.add(value);}
 			}
 
-			Integer count = 0;
+			Integer count = 1;
 			int size = list.size();
 			int xoffset = (windowSize.width - 100) / deepMap.size();
 			int yoffset = (windowSize.height - 100) / (list.size()+1);

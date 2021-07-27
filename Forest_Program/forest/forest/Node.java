@@ -17,13 +17,13 @@ public class Node extends JLabel {
 
 	private String name;
 
-	private Point point;
+	public Point point;
 
 	private List<Integer> numberList;
 
 	private List<Integer> childrenNumber;
 
-	private List<Node> children;
+	public List<Node> children;
 
 	private boolean compute = false;
 
@@ -124,11 +124,11 @@ public class Node extends JLabel {
 		// this.point = point;
 		setBounds(point.x,point.y,size.width,size.height);
 		// this.listener.changed();
-		// try {
-		// 	Thread.sleep(100);
-		// } catch (InterruptedException e) {
-		// 	e.printStackTrace();
-		// }
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		// if(haveChildren()){
 		// 	int yoffset =  (int)(xoffset * Math.tan(Math.toRadians(radian)));
 		// 	Point point2 = new Point(point.x + xoffset,point.y - yoffset);
