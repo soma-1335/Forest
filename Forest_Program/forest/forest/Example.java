@@ -56,7 +56,7 @@ public class Example extends Object
 		// 樹状整列のアニメーションを行う。
 		aModel.animate();
 
-		
+
 
 		return;
 	}
