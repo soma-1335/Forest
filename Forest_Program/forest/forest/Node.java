@@ -17,6 +17,8 @@ public class Node extends JLabel {
 
 	private String name;
 
+	private Point point;
+
 	private List<Integer> numberList;
 
 	private List<Integer> childrenNumber;
@@ -48,11 +50,12 @@ public class Node extends JLabel {
 		this.listener = listener;
 		this.deep = Integer.valueOf(deep);
 		this.name = name;
+		this.point = new Point(x,y);
 		setText(name);
 		setFont(new Font(Font.SERIF, Font.PLAIN, 12));
 		setBorder(new LineBorder(Color.BLACK, 1, false));
 		size = getPreferredSize();
-		setBounds(x, y,size.width, size.height);
+		setBounds(point.x, point.y,size.width, size.height);
 		this.numberList = new ArrayList<Integer>();
 		this.childrenNumber = new ArrayList<Integer>();
 		this.children = new ArrayList<Node>();
@@ -73,7 +76,6 @@ public class Node extends JLabel {
 			Integer number = Integer.valueOf(child);
 			this.childrenNumber.add(number);
 		}
-		
 		return true;
 	}
 
@@ -117,25 +119,26 @@ public class Node extends JLabel {
 		return !this.children.isEmpty();
 	}
 
-	public boolean computePoint(Point point,Integer deep,Integer xoffset,Integer radian) {
+	public boolean computePoint(Point point) {
 
+		// this.point = point;
 		setBounds(point.x,point.y,size.width,size.height);
-		this.listener.changed();
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(haveChildren()){
-			int yoffset =  (int)(xoffset * Math.tan(Math.toRadians(radian)));
-			Point point2 = new Point(point.x + xoffset,point.y - yoffset);
-			radian -= 8; 
-			for(Node node : children)
-			{
-				node.computePoint(point2,0,xoffset,radian);
-				point2.y += yoffset;
-			}
-		}
+		// this.listener.changed();
+		// try {
+		// 	Thread.sleep(100);
+		// } catch (InterruptedException e) {
+		// 	e.printStackTrace();
+		// }
+		// if(haveChildren()){
+		// 	int yoffset =  (int)(xoffset * Math.tan(Math.toRadians(radian)));
+		// 	Point point2 = new Point(point.x + xoffset,point.y - yoffset);
+		// 	radian -= 8; 
+		// 	for(Node node : children)
+		// 	{
+		// 		node.computePoint(point2,0,xoffset,radian);
+		// 		point2.y += yoffset;
+		// 	}
+		// }
 		
 		compute = true;
 

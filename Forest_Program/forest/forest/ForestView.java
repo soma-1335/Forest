@@ -24,7 +24,7 @@ public class ForestView extends View {
 		nodeList.forEach(
 			node -> {
 				add(node);
-				System.out.println(node);
+				//System.out.println(node);
 			});
 	}
 

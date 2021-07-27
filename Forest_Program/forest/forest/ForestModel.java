@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class ForestModel extends Model {
 		List<String> aList = readFile(file);
 
 		deepMap = new HashMap<String,String>();
-		indexMap = new HashMap<Integer,String>();
+		indexMap = new TreeMap<Integer,String>();
 		linkMap = new HashMap<String,String>();
 
 		Iterator<String> iterator = aList.iterator();
@@ -168,7 +169,6 @@ public class ForestModel extends Model {
 			for(String str : strs){
 				node.addChildren(nodeMap.get(Integer.valueOf(str)));
 			}
-			
 		}
 
 		this.changed();
@@ -201,30 +201,49 @@ public class ForestModel extends Model {
 
 	public void animate(){
 		Dimension windowSize = new Dimension(800,600);
-		int xoffset = (windowSize.width - 100) / deepMap.size();
-		// List<Integer> yoffset = new ArrayList<Integer>();
-		// List<Integer> countList = new ArrayList<Integer>();
-		// for(var set: deepMap.entrySet())
-		// {
-		// 	String[] strs = set.getValue().split(",");
-		// 	int y = (windowSize.height - 100) / strs.length  ;
-		// 	yoffset.set(Integer.parseInt(set.getKey()),y);
-		// 	countList.add(1);
-		// }
+	// 	int xoffset = (windowSize.width - 100) / deepMap.size();
+	// 	List<Integer> yoffset = new ArrayList<Integer>();
+	// 	List<Integer> countList = new ArrayList<Integer>();
+	// 	for(var set: deepMap.entrySet())
+	// 	{
+	// 		String[] strs = set.getValue().split(",");
+	// 		int y = (windowSize.height - 100) / strs.length  ;
+	// 		yoffset.set(Integer.parseInt(set.getKey()),y);
+	// 		countList.add(1);
+	// 	}
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	// 	try {
+	// 		Thread.sleep(1000);
+	// 	} catch (InterruptedException e){
+	// 		e.printStackTrace();
+	// 	}
 
-		int yoffset =  (windowSize.height - 100) / (rootList.size()+1);
-		Point point = new Point(20,yoffset);
-		for(Node root : rootList)
-		{
-			root.computePoint(point,0,xoffset,60);
-			point.y += yoffset;
+	// 	int yoffset =  (windowSize.height - 100) / (rootList.size()+1);
+	// 	Point point = new Point(20,yoffset);
+	// 	for(Node root : rootList)
+	// 	{
+	// 		root.computePoint(point,0,xoffset,60);
+	// 		point.y += yoffset;
+	// 	}
+
+		
+		for(Integer i=0;i<deepMap.size();i++){
+			List<Node> list = new ArrayList<Node>();
+			for(var value : nodeMap.values()){
+				if(value.getDeep().equals(i)){list.add(value);}
+			}
+
+			Integer count = 0;
+			int size = list.size();
+			int xoffset = (windowSize.width - 100) / deepMap.size();
+			int yoffset = (windowSize.height - 100) / (list.size()+1);
+			for(Node node : list){
+				Point point = new Point(xoffset*i, yoffset*count);
+				node.computePoint(point);
+				count++;
+			}
 		}
+			
 		
 	}
 }
