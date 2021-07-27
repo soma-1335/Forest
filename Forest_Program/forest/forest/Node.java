@@ -19,7 +19,7 @@ public class Node extends JLabel {
 
 	public Point point;
 
-	private List<Integer> numberList;
+	private Integer number;
 
 	private List<Integer> childrenNumber;
 
@@ -39,7 +39,7 @@ public class Node extends JLabel {
 		stringBuilder.append("  Deep =");
 		stringBuilder.append(this.deep);
 		stringBuilder.append("  number =");
-		stringBuilder.append(this.numberList.get(0));
+		stringBuilder.append(this.number);
 		stringBuilder.append("  haveChildren = ");
 		stringBuilder.append(haveChildren());
 
@@ -56,7 +56,6 @@ public class Node extends JLabel {
 		setBorder(new LineBorder(Color.BLACK, 1, false));
 		size = getPreferredSize();
 		setBounds(point.x, point.y,size.width, size.height);
-		this.numberList = new ArrayList<Integer>();
 		this.childrenNumber = new ArrayList<Integer>();
 		this.children = new ArrayList<Node>();
 	}
@@ -79,22 +78,17 @@ public class Node extends JLabel {
 		return true;
 	}
 
-	public boolean addNumberList(Integer number) {
-		return this.numberList.add(number);
+	public void setNumber(Integer number) {
+		this.number = number;
 	}
 
-	public List<Integer> getNumberList() {
-		return this.numberList;
+	public Integer getNumber() {
+		return this.number;
 	}
 
-	public boolean sameNumberList(String numString){
+	public boolean sameNumber(String numString){
 		Integer num = Integer.valueOf(numString);
-		for(Integer value : this.numberList)
-		{
-			if(value.equals(num)){return true;}
-		}
-
-		return false;
+		return this.number.equals(num)? true : false;
 	}
 
 	public boolean sameChildrenNumberList(Integer num){

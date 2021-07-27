@@ -25,16 +25,25 @@ public class ForestView extends View {
 		List<Node> nodeList = model.getNodeList();
 		Map<Integer,Node> nodeMap = model.nodeMap;
 		Map<String,String> linkMap = model.linkMap;
-		
-		nodeList.forEach(
-			node -> 
-			{
-				add(node);
-				node.children.stream().forEach(child -> 
-				{
-					aGraphics.drawLine(node.point.x, node.point.y, child.point.x, child.point.y);
-				});
-			});
+
+		for(Node node : nodeList){
+			add(node);
+			System.out.println(node);
+			String[] strs = linkMap.get(node.getNumber().toString()).split(",");
+			for(String str : strs){
+				Node child = nodeMap.get(Integer.valueOf(str));
+				aGraphics.drawLine(node.point.x, node.point.y, child.point.x, child.point.y);
+			}
+		}
+
+
+
+		// nodeList.forEach(
+		// 	node -> 
+		// 	{
+		// 		add(node);
+		// 		linkMap.get(Integer.valueOf(node.getNumber()))
+		// 	});
 	}
 
 }

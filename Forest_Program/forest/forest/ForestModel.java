@@ -138,10 +138,9 @@ public class ForestModel extends Model {
 		{
 			for(Node node : nodeList){
 				if(node.getName().equals(entrySet.getValue())){
-					node.addNumberList(entrySet.getKey());
+					node.setNumber(entrySet.getKey());
 					nodeMap.put(entrySet.getKey(), node);
 				}
-				
 			}
 			// nodeList.stream()
 			// 		.takeWhile(node -> node.getName().equals(entrySet.getValue()))
@@ -152,11 +151,11 @@ public class ForestModel extends Model {
 		for(var entrySet : linkMap.entrySet())
 		{
 			for(Node node: nodeList){
-				if(node.sameNumberList(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
+				if(node.sameNumber(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
 			}
-			nodeList.stream()
-					.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
-					.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
+			// nodeList.stream()
+			// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
+			// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
 		}
 
 
