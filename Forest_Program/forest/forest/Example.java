@@ -23,22 +23,22 @@ public class Example extends Object
 	 */
 	public static void main(String[] arguments)
 	{
-		// 引数が無い（樹状整列データファイルの在り処がわからない）をチェックする。
-		if (arguments.length < 1)
-		{
-			System.err.println("There are too few arguments.");
-			System.exit(1);
-		}
+		// // 引数が無い（樹状整列データファイルの在り処がわからない）をチェックする。
+		// if (arguments.length < 1)
+		// {
+		// 	System.err.println("There are too few arguments.");
+		// 	System.exit(1);
+		// }
 
-		// 第1引数で指定された樹状整列データファイルの存在をチェックする。
-		File aFile = new File(arguments[0]);
-		if (!(aFile.exists()))
-		{
-			System.err.println("'" + aFile + "' does not exist.");
-			System.exit(1);
-		}
+		// // 第1引数で指定された樹状整列データファイルの存在をチェックする。
+		// File aFile = new File(arguments[0]);
+		// if (!(aFile.exists()))
+		// {
+		// 	System.err.println("'" + aFile + "' does not exist.");
+		// 	System.exit(1);
+		// }
 
-		/**********
+		File aFile = new File("resource/data/forest.txt");
 
 		 // MVCを作成する。
 		ForestModel aModel = new ForestModel(aFile);
@@ -56,7 +56,7 @@ public class Example extends Object
 		// 樹状整列のアニメーションを行う。
 		aModel.animate();
 
-		**********/
+		
 
 		return;
 	}
