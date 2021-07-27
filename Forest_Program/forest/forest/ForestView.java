@@ -3,6 +3,7 @@ package forest;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.util.List;
+import java.util.Map;
 
 import mvc.View;
 
@@ -20,11 +21,19 @@ public class ForestView extends View {
 	}
 
 	public void paintComponent(Graphics aGraphics) {
+		
 		List<Node> nodeList = model.getNodeList();
+		Map<Integer,Node> nodeMap = model.nodeMap;
+		Map<String,String> linkMap = model.linkMap;
+		
 		nodeList.forEach(
-			node -> {
+			node -> 
+			{
 				add(node);
-				//System.out.println(node);
+				node.children.stream().forEach(child -> 
+				{
+					aGraphics.drawLine(node.point.x, node.point.y, child.point.x, child.point.y);
+				});
 			});
 	}
 
