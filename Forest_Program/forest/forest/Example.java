@@ -38,7 +38,7 @@ public class Example extends Object
 		// 	System.exit(1);
 		// }
 
-		File aFile = new File("resource/data/tree.txt");
+		File aFile = new File("resource/data/semilattice.txt");
 
 		 // MVCを作成する。
 		ForestModel aModel = new ForestModel(aFile);
