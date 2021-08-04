@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -37,12 +38,16 @@ public class ForestModel extends Model {
 
 	private Map<Integer,Node> nodeMap;
 
+	private int base;
+
+
 	public ForestModel(File file){
 		super();
 		List<String> aList = readFile(file);
+		
 
 		deepMap = new HashMap<String,String>();
-		indexMap = new HashMap<Integer,String>();
+		indexMap = new TreeMap<Integer,String>();
 		linkMap = new HashMap<String,String>();
 
 		Iterator<String> iterator = aList.iterator();
@@ -113,7 +118,7 @@ public class ForestModel extends Model {
 	public void paform(){
 		nodeList = new ArrayList<Node>();
 		rootList = new ArrayList<Node>();
-		nodeMap = new HashMap<Integer,Node>();
+		nodeMap = new TreeMap<Integer,Node>();
 		
 		int x = 0;
 		int y = 0;
@@ -124,7 +129,7 @@ public class ForestModel extends Model {
 			
 			for(String str : strs)
 			{
-				Node node = new Node(this,entrySet.getKey(), str,x,y);
+				Node node = new Node(entrySet.getKey(), str,x,y);
 				nodeList.add(node);
 				y += 15;
 			}
@@ -137,29 +142,28 @@ public class ForestModel extends Model {
 		{
 			for(Node node : nodeList){
 				if(node.getName().equals(entrySet.getValue())){
-					node.addNumberList(entrySet.getKey());
+					node.setNumber(entrySet.getKey());
 					nodeMap.put(entrySet.getKey(), node);
 				}
-				
 			}
 			// nodeList.stream()
 			// 		.takeWhile(node -> node.getName().equals(entrySet.getValue()))
 			// 		.forEach(node -> node.addNumberList(entrySet.getKey()));
 		}
 
-		// //Nodeに子要素を振る
-		// for(var entrySet : linkMap.entrySet())
-		// {
-		// 	for(Node node: nodeList){
-		// 		if(node.sameNumberList(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
-		// 	}
-		// 	// nodeList.stream()
-		// 	// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
-		// 	// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
-		// }
+		//Nodeに子要素を振る
+		for(var entrySet : linkMap.entrySet())
+		{
+			for(Node node: nodeList){
+				if(node.sameNumber(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
+			}
+			// nodeList.stream()
+			// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
+			// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
+		}
 
 
-		rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
+		//rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
 
 		for(var entrySet : linkMap.entrySet())
 		{
@@ -168,63 +172,119 @@ public class ForestModel extends Model {
 			for(String str : strs){
 				node.addChildren(nodeMap.get(Integer.valueOf(str)));
 			}
-			
 		}
-
-		this.changed();
 	}
 
-	//Node名が同じものをなくす
-	public List<Node> notRepetition(List<Node> list){
-		Set set = new HashSet<String>();
-		List<Node> aList = list.stream().filter(str -> set.add(str.getName()))
-							.collect(Collectors.toList());
-		return aList;
-	}
+	// //Node名が同じものをなくす
+	// public List<Node> notRepetition(List<Node> list){
+	// 	Set set = new HashSet<String>();
+	// 	List<Node> aList = list.stream().filter(str -> set.add(str.getName()))
+	// 						.collect(Collectors.toList());
+	// 	return aList;
+	// }
 
 
-	public Integer getIndex(String str){
-		Integer index = null;
+	// public Integer getIndex(String str){
+	// 	Integer index = null;
 
-		for(var set : indexMap.entrySet()){
-			if(set.getValue().equals(str)){
-				index = set.getKey();
-			}
-		}
+	// 	for(var set : indexMap.entrySet()){
+	// 		if(set.getValue().equals(str)){
+	// 			index = set.getKey();
+	// 		}
+	// 	}
 
-		return index;
-	}
+	// 	return index;
+	// }
 
 	public List<Node> getNodeList(){
 		return this.nodeList;
 	}
 
+	public Map<Integer, Node> getNodeMap(){
+		return this.nodeMap;
+	}
+
 	public void animate(){
-		Dimension windowSize = new Dimension(800,600);
-		int xoffset = (windowSize.width - 100) / deepMap.size();
-		// List<Integer> yoffset = new ArrayList<Integer>();
-		// List<Integer> countList = new ArrayList<Integer>();
-		// for(var set: deepMap.entrySet())
-		// {
-		// 	String[] strs = set.getValue().split(",");
-		// 	int y = (windowSize.height - 100) / strs.length  ;
-		// 	yoffset.set(Integer.parseInt(set.getKey()),y);
-		// 	countList.add(1);
-		// }
+		int height = 0;
+		for(Node node : this.nodeList){
+			animate(node,0,height);
+			height += 15;
+		}
+	}
+
+	public void animate(Node node,int x,int y){
+		int size = 16;
+		int move = 0;
+		int sumHeight = 0;
+		boolean isParent = false;
+		List<Node> children = node.getChildren();
+		
+
+		if(!node.getFlag()){
+			node.computePoint(x,y);
+			node.inited();
+		}
+		else{
+			isParent = true;
+			this.base = y + size;
+			return;
+		}
 
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(20);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		int yoffset =  (windowSize.height - 100) / (rootList.size()+1);
-		Point point = new Point(20,yoffset);
-		for(Node root : rootList)
-		{
-			root.computePoint(point,0,xoffset,60);
-			point.y += yoffset;
+		if(!node.haveChildren()){
+			this.base = y + size;
+			changed();
+			isParent = false;
 		}
-		
+		else{
+			changed();
+			for(Node child : children){
+				Point lastPoint = child.getPoint();
+				animate(child,x + node.getSize().width+25*2,this.base);
+				sumHeight += lastPoint.y;
+
+				try {
+					Thread.sleep(20);
+				}catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			if(node.haveChildren()){
+				if(isParent){
+					node.computePoint(x, y);
+					
+				}
+				else{ 
+					move = sumHeight / children.size();
+					node.computePoint(x,move);
+				}
+				changed();
+			}
+		}
+
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void mouseClicked(Point aPoint) {
+		//System.out.println("model");
+		for(Node node : nodeList){
+			
+			Point point = node.getPoint();
+			
+			Dimension size = node.getSize();
+			if(aPoint.x >= point.x && aPoint.x <= point.x + size.width && aPoint.y >= point.y && aPoint.y <= point.y + size.height) {
+				System.out.println(node.getName());
+			}
+		}
 	}
 }

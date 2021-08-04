@@ -17,7 +17,9 @@ public class Node extends JLabel {
 
 	private String name;
 
-	private List<Integer> numberList;
+	private Point point;
+
+	private Integer number;
 
 	private List<Integer> childrenNumber;
 
@@ -27,7 +29,7 @@ public class Node extends JLabel {
 
 	private Dimension size;
 
-	private ForestModel listener;
+	private boolean initFlag = false;
 
 	@Override
 	public String toString() {
@@ -37,23 +39,22 @@ public class Node extends JLabel {
 		stringBuilder.append("  Deep =");
 		stringBuilder.append(this.deep);
 		stringBuilder.append("  number =");
-		stringBuilder.append(this.numberList.get(0));
+		stringBuilder.append(this.number);
 		stringBuilder.append("  haveChildren = ");
 		stringBuilder.append(haveChildren());
 
 		return stringBuilder.toString();
 	}
 
-	public Node(ForestModel listener, String deep, String name,int x, int y) {
-		this.listener = listener;
+	public Node(String deep, String name,int x, int y) {
 		this.deep = Integer.valueOf(deep);
 		this.name = name;
+		this.point = new Point(x,y);
 		setText(name);
 		setFont(new Font(Font.SERIF, Font.PLAIN, 12));
 		setBorder(new LineBorder(Color.BLACK, 1, false));
 		size = getPreferredSize();
-		setBounds(x, y,size.width, size.height);
-		this.numberList = new ArrayList<Integer>();
+		setBounds(point.x, point.y,size.width, size.height);
 		this.childrenNumber = new ArrayList<Integer>();
 		this.children = new ArrayList<Node>();
 	}
@@ -73,26 +74,29 @@ public class Node extends JLabel {
 			Integer number = Integer.valueOf(child);
 			this.childrenNumber.add(number);
 		}
-		
 		return true;
 	}
 
-	public boolean addNumberList(Integer number) {
-		return this.numberList.add(number);
+	public boolean inited(){
+		initFlag = true;
+		return initFlag;
 	}
 
-	public List<Integer> getNumberList() {
-		return this.numberList;
+	public boolean getFlag(){
+		return initFlag;
 	}
 
-	public boolean sameNumberList(String numString){
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+
+	public Integer getNumber() {
+		return this.number;
+	}
+
+	public boolean sameNumber(String numString){
 		Integer num = Integer.valueOf(numString);
-		for(Integer value : this.numberList)
-		{
-			if(value.equals(num)){return true;}
-		}
-
-		return false;
+		return this.number.equals(num)? true : false;
 	}
 
 	public boolean sameChildrenNumberList(Integer num){
@@ -101,45 +105,33 @@ public class Node extends JLabel {
 		{
 			if(value.equals(num)){return true;}
 		}
-
 		return false;
+	}
+
+	public List<Node> getChildren(){
+		return children;
 	}
 
 	public List<Integer> getchildrenNumber(int deep) {
 		return this.childrenNumber;
 	}
 
-	private boolean computed(){
-		return compute;
+	public boolean haveChildren() {
+		return (this.children.isEmpty() || this.children.size() ==0) ? false : true;
 	}
 
-	private boolean haveChildren() {
-		return !this.children.isEmpty();
+	public boolean computePoint(int x,int y) {
+		this.point.x = x;
+		this.point.y = y;
+		return true;
 	}
 
-	public boolean computePoint(Point point,Integer deep,Integer xoffset,Integer radian) {
+	public Point getPoint() {
+		return this.point;
+	}
 
-		setBounds(point.x,point.y,size.width,size.height);
-		this.listener.changed();
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(haveChildren()){
-			int yoffset =  (int)(xoffset * Math.tan(Math.toRadians(radian)));
-			Point point2 = new Point(point.x + xoffset,point.y - yoffset);
-			radian -= 8; 
-			for(Node node : children)
-			{
-				node.computePoint(point2,0,xoffset,radian);
-				point2.y += yoffset;
-			}
-		}
-		
-		compute = true;
-
-		return compute;
+	public Dimension getSize() {
+		return this.size;
 	}
 
 	public Integer getDeep(){
