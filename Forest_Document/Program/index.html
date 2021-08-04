@@ -248,9 +248,741 @@ th {
 </div>
 <hr>
 <h2>ソフトウェア工学II「樹状整列」プログラム</h2>
+<ul>
+  <li><a href="#Example">Example</a> (メインクラス)
+  </li>
+  <li><a href="#ForestModel">ForestModel</a> (モデル)
+  </li>
+  <li><a href="#ForestController">ForestController</a> (コントローラ)
+  </li>
+  <li><a href="#ForestView">ForestView</a> (ビュー)
+  </li>
+  <li><a href="#Node">Node</a> (ノード)
+  </li>
+  <li><a href="#Root">Root</a> (ルート)
+  </li>
+  <li><a href="#Branch">Branch</a> (ブランチ)
+  </li>
+  <li><a href="#Constants">Constants</a> (定数の集まり)
+  </li>
+</ul>
 <div class="belt">
-<h3><a name="KanseiSaseteKudasai">完成させてください</a></h3>
+<h3><a name="Example">Example</a></h3>
 </div>
+<pre>
+  package forest;
+
+import java.awt.Dimension;
+import java.awt.Point;
+import java.io.File;
+import javax.swing.JFrame;
+
+/**
+ * 樹状整列の例題クラス：使い方の典型を示すのが目的のプログラムです。<br>
+ * Makefileを用いた実行方法は以下の通りです。<br>
+ * $ make tree  # 木を整列描画<br>
+ * $ make forest  # 森を整列描画<br>
+ * $ make semilattice  # 亜格子状の森を整列描画<br>
+ */
+public class Example extends Object
+{
+	/**
+	 * 第1引数で樹状整列データファイルを受け取って樹状整列を実行します。<br>
+	 * $ java -Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar forest.jar resource/data/tree.txt<br>
+	 * $ java -Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar forest.jar resource/data/forest.txt<br>
+	 * $ java -Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar forest.jar resource/data/semilattice.txt<br>
+	 * @param arguments 樹状整列データファイルを第1引数とする引数文字列群
+	 */
+	public static void main(String[] arguments)
+	{
+		// // 引数が無い（樹状整列データファイルの在り処がわからない）をチェックする。
+		// if (arguments.length < 1)
+		// {
+		// 	System.err.println("There are too few arguments.");
+		// 	System.exit(1);
+		// }
+
+		// // 第1引数で指定された樹状整列データファイルの存在をチェックする。
+		// File aFile = new File(arguments[0]);
+		// if (!(aFile.exists()))
+		// {
+		// 	System.err.println("'" + aFile + "' does not exist.");
+		// 	System.exit(1);
+		// }
+
+		File aFile = new File("resource/data/semilattice.txt");
+
+		 // MVCを作成する。
+		ForestModel aModel = new ForestModel(aFile);
+		ForestView aView = new ForestView(aModel);
+
+		// ウィンドウを生成して開く。
+		JFrame aWindow = new JFrame(aFile.getName());
+		aWindow.getContentPane().add(aView);
+		aWindow.setMinimumSize(new Dimension(400, 300));
+		aWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		aWindow.setSize(800, 600);
+		aWindow.setLocationRelativeTo(null);
+		aWindow.setVisible(true);
+
+		// 樹状整列のアニメーションを行う。
+		aModel.animate();
+
+
+
+		return;
+	}
+}
+</pre>
+<div class="belt">
+<h3><a name="ForestModel">ForestModel</a></h3>
+</div>
+<pre>
+  package forest;
+
+import java.awt.Dimension;
+import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import mvc.Model;
+
+
+public class ForestModel extends Model {
+	
+	private Map<String,String> deepMap; 
+
+	private Map<Integer,String>	indexMap;
+
+	private Map<String,String> linkMap;
+
+	private List<Node> nodeList;
+
+	private List<Node> rootList;
+
+	private Map<Integer,Node> nodeMap;
+
+	private int base;
+
+
+	public ForestModel(File file){
+		super();
+		List<String> aList = readFile(file);
+		
+
+		deepMap = new HashMap<String,String>();
+		indexMap = new TreeMap<Integer,String>();
+		linkMap = new HashMap<String,String>();
+
+		Iterator<String> iterator = aList.iterator();
+		String regrex = "[^\\|\\s\\-]";
+		Pattern p = Pattern.compile(regrex);
+		Integer actionFlag = 0;
+
+		while(iterator.hasNext()) 
+		{
+			String str = iterator.next();
+			
+			if(str.equals("trees:")){actionFlag = 1;continue;}
+			if(str.equals("nodes:")){actionFlag = 2;continue;}
+			if(str.equals("branches:")){actionFlag = 3;continue;}
+			
+			
+			switch(actionFlag){
+
+				case 1:
+					Matcher m = p.matcher(str);
+					Integer index = m.find() ? m.start() : null;
+					Integer deep = index / 4;
+					deepMap.merge(deep.toString() , str.substring(index), 
+								(v1,v2) -> {
+										return v1 + "," + v2;
+								});
+					break;
+
+				case 2:
+					List<String> strList1 = Arrays.asList(str.split(","));
+					indexMap.put(Integer.valueOf(strList1.get(0)) , strList1.get(1).trim());
+					break;
+				
+				case 3:
+					List<String> strList2 = Arrays.asList(str.split(","));
+					linkMap.merge(strList2.get(0),strList2.get(1).trim() ,
+									(v1,v2) -> {
+										return v1.toString() + "," + v2.toString();
+									});
+					break;
+			}
+		}
+
+		paform();
+	}
+
+
+	private List<String> readFile(File file){
+
+		List<String> aList = new ArrayList<String>();
+
+		try
+		{
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+
+			String aString = null;
+			while((aString = reader.readLine()) != null){
+				aList.add(aString);
+			}
+			reader.close();
+		}
+		catch(FileNotFoundException e){e.printStackTrace();}
+		catch(IOException e){e.printStackTrace();}
+
+		return aList;
+	}
+
+	public void paform(){
+		nodeList = new ArrayList<Node>();
+		rootList = new ArrayList<Node>();
+		nodeMap = new TreeMap<Integer,Node>();
+		
+		int x = 0;
+		int y = 0;
+		//Nodeに深さと名前を振る
+		for(var entrySet: deepMap.entrySet())
+		{
+			String[] strs = entrySet.getValue().split(",");
+			
+			for(String str : strs)
+			{
+				Node node = new Node(entrySet.getKey(), str,x,y);
+				nodeList.add(node);
+				y += 15;
+			}
+		}
+
+		//nodeList = notRepetition(nodeList);
+
+		//Nodeに番号を振る
+		for(var entrySet : indexMap.entrySet())
+		{
+			for(Node node : nodeList){
+				if(node.getName().equals(entrySet.getValue())){
+					node.setNumber(entrySet.getKey());
+					nodeMap.put(entrySet.getKey(), node);
+				}
+			}
+			// nodeList.stream()
+			// 		.takeWhile(node -> node.getName().equals(entrySet.getValue()))
+			// 		.forEach(node -> node.addNumberList(entrySet.getKey()));
+		}
+
+		//Nodeに子要素を振る
+		for(var entrySet : linkMap.entrySet())
+		{
+			for(Node node: nodeList){
+				if(node.sameNumber(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
+			}
+			// nodeList.stream()
+			// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
+			// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
+		}
+
+
+		//rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
+
+		for(var entrySet : linkMap.entrySet())
+		{
+			Node node = nodeMap.get(Integer.valueOf(entrySet.getKey()));
+			String[] strs = entrySet.getValue().split(",");
+			for(String str : strs){
+				node.addChildren(nodeMap.get(Integer.valueOf(str)));
+			}
+		}
+	}
+
+	// //Node名が同じものをなくす
+	// public List<Node> notRepetition(List<Node> list){
+	// 	Set set = new HashSet<String>();
+	// 	List<Node> aList = list.stream().filter(str -> set.add(str.getName()))
+	// 						.collect(Collectors.toList());
+	// 	return aList;
+	// }
+
+
+	// public Integer getIndex(String str){
+	// 	Integer index = null;
+
+	// 	for(var set : indexMap.entrySet()){
+	// 		if(set.getValue().equals(str)){
+	// 			index = set.getKey();
+	// 		}
+	// 	}
+
+	// 	return index;
+	// }
+
+	public List<Node> getNodeList(){
+		return this.nodeList;
+	}
+
+	public Map<Integer, Node> getNodeMap(){
+		return this.nodeMap;
+	}
+
+	public void animate(){
+		int height = 0;
+		for(Node node : this.nodeList){
+			animate(node,0,height);
+			height += 15;
+		}
+	}
+
+	public void animate(Node node,int x,int y){
+		int size = 16;
+		int move = 0;
+		int sumHeight = 0;
+		boolean isParent = false;
+		List<Node> children = node.getChildren();
+		
+
+		if(!node.getFlag()){
+			node.computePoint(x,y);
+			node.inited();
+		}
+		else{
+			isParent = true;
+			this.base = y + size;
+			return;
+		}
+
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		if(!node.haveChildren()){
+			this.base = y + size;
+			changed();
+			isParent = false;
+		}
+		else{
+			changed();
+			for(Node child : children){
+				Point lastPoint = child.getPoint();
+				animate(child,x + node.getSize().width+25*2,this.base);
+				sumHeight += lastPoint.y;
+
+				try {
+					Thread.sleep(20);
+				}catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			if(node.haveChildren()){
+				if(isParent){
+					node.computePoint(x, y);
+					
+				}
+				else{ 
+					move = sumHeight / children.size();
+					node.computePoint(x,move);
+				}
+				changed();
+			}
+		}
+
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void mouseClicked(Point aPoint) {
+		//System.out.println("model");
+		for(Node node : nodeList){
+			
+			Point point = node.getPoint();
+			
+			Dimension size = node.getSize();
+			if(aPoint.x >= point.x && aPoint.x <= point.x + size.width && aPoint.y >= point.y && aPoint.y <= point.y + size.height) {
+				System.out.println(node.getName());
+			}
+		}
+	}
+}
+</pre>
+<div class="belt">
+<h3><a name="ForestController">ForestController</a></h3>
+</div>
+<pre>
+  package forest;
+
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import mvc.Controller;
+
+public class ForestController extends Controller {
+
+
+	private ForestModel forestModel;
+
+	public ForestController(){
+		super();
+	}
+
+	public ForestController(ForestModel forestModel) {
+		super();
+		this.forestModel = forestModel;
+	}
+
+	// @Override
+	// public void mouseEntered(MouseEvent aMouseEvent) {
+	// 	// TODO Auto-generated method stub
+	// 	return;
+	// }
+
+	// @Override
+	// public void mouseExited(MouseEvent aMouseEvent) {
+	// 	return;
+	// }
+
+	// @Override
+	// public void mouseReleased(MouseEvent aMouseEvent) {
+	// 	// TODO Auto-generated method stub
+	// 	Cursor aCursor = Cursor.getDefaultCursor();
+	// 	Component aComponent = (Component)aMouseEvent.getSource();
+	// 	aComponent.setCursor(aCursor);
+	// 	this.current = aMouseEvent.getPoint();
+	// 	this.previous = current;
+	// 	return;
+		
+	// }	
+
+	@Override
+	public void mouseClicked(MouseEvent aMouseEvent) {
+		//System.out.println("controller");
+		Point aPoint = aMouseEvent.getPoint();
+		aPoint.translate(view.scrollAmount().x, view.scrollAmount().y);
+		ForestModel amodel = (ForestModel)this.model;
+		amodel.mouseClicked(aPoint);
+		return;
+	}
+
+	// @Override
+	// public void mousePressed(MouseEvent aMouseEvent) {
+	// 	// // TODO Auto-generated method stub
+	// 	Cursor aCursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+	// 	Component aComponent = (Component)aMouseEvent.getSource();
+	// 	aComponent.setCursor(aCursor);
+	// 	current = aMouseEvent.getPoint();
+	// 	previous = current;
+	// 	return;
+		
+	// }
+
+	
+}
+</pre>
+<div class="belt">
+<h3><a name="ForestView">ForestView</a></h3>
+</div>
+<pre>
+  package forest;
+
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.util.List;
+import java.util.Map;
+
+import mvc.View;
+
+public class ForestView extends View {
+
+	ForestModel model;
+
+	ForestController controller;
+
+	public ForestView(ForestModel aModel){
+		super(aModel,new ForestController());
+		model = aModel;
+		
+	}
+
+
+	public ForestView(ForestModel aModel, ForestController aController) {
+		super(aModel,aController);
+		model = aModel;
+		controller = aController;
+	}
+
+	public void paintComponent(Graphics aGraphics) {
+		int width = this.getWidth();
+		int height = this.getHeight();
+		aGraphics.setColor(Color.white);
+		aGraphics.fillRect(0, 0, width, height);
+		Map<Integer,Node> map = model.getNodeMap();
+		Point point = scrollAmount();
+
+		for(var entrySet : map.entrySet()){
+			
+			Node node = entrySet.getValue();
+			Point point2 = node.getPoint();
+			node.setBounds(point2.x - point.x,point2.y - point.y,node.getSize().width,node.getSize().height);
+			for(Node child : node.getChildren()){
+				Point point3 = child.getPoint();
+				aGraphics.setColor(Color.BLACK);
+				aGraphics.drawLine(point2.x + node.getSize().width - point.x,point2.y + node.getSize().height/2 - point.y,point3.x - point.x,point3.y - point.y);
+			}
+			this.add(node);
+		}
+	}
+
+}
+</pre>
+<div class="belt">
+<h3><a name="Node">Node</a></h3>
+</div>
+<pre>
+  package forest;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JLabel;
+import javax.swing.border.LineBorder;
+
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Dimension;
+import java.awt.Font;
+
+public class Node extends JLabel {
+
+	private Integer deep;
+
+	private String name;
+
+	private Point point;
+
+	private Integer number;
+
+	private List<Integer> childrenNumber;
+
+	private List<Node> children;
+
+	private boolean compute = false;
+
+	private Dimension size;
+
+	private boolean initFlag = false;
+
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder("");
+		stringBuilder.append("Name =");
+		stringBuilder.append(this.name);
+		stringBuilder.append("  Deep =");
+		stringBuilder.append(this.deep);
+		stringBuilder.append("  number =");
+		stringBuilder.append(this.number);
+		stringBuilder.append("  haveChildren = ");
+		stringBuilder.append(haveChildren());
+
+		return stringBuilder.toString();
+	}
+
+	public Node(String deep, String name,int x, int y) {
+		this.deep = Integer.valueOf(deep);
+		this.name = name;
+		this.point = new Point(x,y);
+		setText(name);
+		setFont(new Font(Font.SERIF, Font.PLAIN, 12));
+		setBorder(new LineBorder(Color.BLACK, 1, false));
+		size = getPreferredSize();
+		setBounds(point.x, point.y,size.width, size.height);
+		this.childrenNumber = new ArrayList<Integer>();
+		this.children = new ArrayList<Node>();
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public boolean addChildren(Node node) {
+		children.add(node);
+		return 	true;
+	}
+
+	public boolean addchildrenNumber(String childrenNumber) {
+		String[] childrenNumbers = childrenNumber.split(",");
+		for(String child : childrenNumbers){
+			Integer number = Integer.valueOf(child);
+			this.childrenNumber.add(number);
+		}
+		return true;
+	}
+
+	public boolean inited(){
+		initFlag = true;
+		return initFlag;
+	}
+
+	public boolean getFlag(){
+		return initFlag;
+	}
+
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+
+	public Integer getNumber() {
+		return this.number;
+	}
+
+	public boolean sameNumber(String numString){
+		Integer num = Integer.valueOf(numString);
+		return this.number.equals(num)? true : false;
+	}
+
+	public boolean sameChildrenNumberList(Integer num){
+		
+		for(Integer value : this.childrenNumber)
+		{
+			if(value.equals(num)){return true;}
+		}
+		return false;
+	}
+
+	public List<Node> getChildren(){
+		return children;
+	}
+
+	public List<Integer> getchildrenNumber(int deep) {
+		return this.childrenNumber;
+	}
+
+	public boolean haveChildren() {
+		return (this.children.isEmpty() || this.children.size() ==0) ? false : true;
+	}
+
+	public boolean computePoint(int x,int y) {
+		this.point.x = x;
+		this.point.y = y;
+		return true;
+	}
+
+	public Point getPoint() {
+		return this.point;
+	}
+
+	public Dimension getSize() {
+		return this.size;
+	}
+
+	public Integer getDeep(){
+		return deep;
+	}
+}
+</pre>
+<div class="belt">
+<h3><a name="Root">Root</a></h3>
+</div>
+<pre>
+  package forest;
+
+import java.util.ArrayList;
+import java.awt.Point;
+
+public class Root {
+
+	private ArrayList roots;
+
+	public void Root() {
+
+	}
+
+	public ArrayList getRoots() {
+		return null;
+	}
+
+	public void setRoot(Point aPoint) {
+
+	}
+
+}
+</pre>
+<div class="belt">
+<h3><a name="Branch">Branch</a></h3>
+</div>
+<pre>
+package forest;
+
+import java.util.ArrayList;
+import java.awt.Point;
+
+public class Branch {
+
+	private Node NodeData;
+
+	private ArrayList leaves;
+
+	public void Branch(Node NodeData) {
+
+	}
+
+	public ArrayList getLeaves() {
+		return null;
+	}
+
+	public void setBranch(Point Points) {
+
+	}
+
+}
+</pre>
+<div class="belt">
+<h3><a name="Constants">Constants</a></h3>
+</div>
+<pre>
+package forest;
+
+public class Constants extends Object {
+
+	public String TREE = "tree.txt";
+
+	public String FOREST = "forest.txt";
+
+	public String SEMILATTICE = "semilattice.txt";
+
+	public int WINDOW_HEIGHT;
+
+	public int WINDOW_WIDTH;
+
+	public int INTERVAL;
+
+}</pre>
 <hr>
 <div class="right-small">Copyright 20xx Project xx, Updated: 2017/03/13 (Created: 2009/11/11)</div>
 </body>
