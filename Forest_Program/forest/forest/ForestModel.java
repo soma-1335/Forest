@@ -11,19 +11,19 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import mvc.Model;
 
-
+/**
+ * moodel。ノードの情報を格納し、座標などの計算を行う。
+ * 
+ */
 public class ForestModel extends Model {
 	
 	private Map<String,String> deepMap; 
@@ -41,6 +41,10 @@ public class ForestModel extends Model {
 	private int base;
 
 
+	/**
+	 * コンストラクター。　このプログラムで使うデータを指定されたファイルから読み取りフィールドに束縛する。
+	 * @param file 木構造が示されたファイル
+	 */
 	public ForestModel(File file){
 		super();
 		List<String> aList = readFile(file);
@@ -95,6 +99,11 @@ public class ForestModel extends Model {
 	}
 
 
+	/**
+	 * ファイルの内容を読み取り、リストに一行ずつ格納する。
+	 * @param file 木構造が示されたファイル
+	 * @return ファイルの内容が一行ずつ格納されたリスト
+	 */
 	private List<String> readFile(File file){
 
 		List<String> aList = new ArrayList<String>();
@@ -115,6 +124,9 @@ public class ForestModel extends Model {
 		return aList;
 	}
 
+	/**
+	 * ファイルから読み取った各情報からNodeの設定をする。
+	 */
 	public void paform(){
 		nodeList = new ArrayList<Node>();
 		rootList = new ArrayList<Node>();
@@ -122,6 +134,7 @@ public class ForestModel extends Model {
 		
 		int x = 0;
 		int y = 0;
+
 		//Nodeに深さと名前を振る
 		for(var entrySet: deepMap.entrySet())
 		{
@@ -135,7 +148,6 @@ public class ForestModel extends Model {
 			}
 		}
 
-		//nodeList = notRepetition(nodeList);
 
 		//Nodeに番号を振る
 		for(var entrySet : indexMap.entrySet())
@@ -146,25 +158,9 @@ public class ForestModel extends Model {
 					nodeMap.put(entrySet.getKey(), node);
 				}
 			}
-			// nodeList.stream()
-			// 		.takeWhile(node -> node.getName().equals(entrySet.getValue()))
-			// 		.forEach(node -> node.addNumberList(entrySet.getKey()));
 		}
 
-		//Nodeに子要素を振る
-		for(var entrySet : linkMap.entrySet())
-		{
-			for(Node node: nodeList){
-				if(node.sameNumber(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
-			}
-			// nodeList.stream()
-			// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
-			// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
-		}
-
-
-		//rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
-
+		// Nodeに子要素を振る
 		for(var entrySet : linkMap.entrySet())
 		{
 			Node node = nodeMap.get(Integer.valueOf(entrySet.getKey()));
@@ -175,35 +171,18 @@ public class ForestModel extends Model {
 		}
 	}
 
-	// //Node名が同じものをなくす
-	// public List<Node> notRepetition(List<Node> list){
-	// 	Set set = new HashSet<String>();
-	// 	List<Node> aList = list.stream().filter(str -> set.add(str.getName()))
-	// 						.collect(Collectors.toList());
-	// 	return aList;
-	// }
-
-
-	// public Integer getIndex(String str){
-	// 	Integer index = null;
-
-	// 	for(var set : indexMap.entrySet()){
-	// 		if(set.getValue().equals(str)){
-	// 			index = set.getKey();
-	// 		}
-	// 	}
-
-	// 	return index;
-	// }
-
-	public List<Node> getNodeList(){
-		return this.nodeList;
-	}
-
+	
+	/**
+	 * ノードが格納されたMapを応答する
+	 * @return Nodeが格納されたMap
+	 */
 	public Map<Integer, Node> getNodeMap(){
 		return this.nodeMap;
 	}
 
+	/**
+	 * Nodeのリストを表示する。
+	 */
 	public void animate(){
 		int height = 0;
 		for(Node node : this.nodeList){
@@ -212,6 +191,12 @@ public class ForestModel extends Model {
 		}
 	}
 
+	/**
+	 * Nodeのリストをアニメーションで表示する。
+	 * @param node 一つのノード
+	 * @param x　x座標
+	 * @param y　y座標
+	 */
 	public void animate(Node node,int x,int y){
 		int size = 16;
 		int move = 0;
@@ -275,8 +260,11 @@ public class ForestModel extends Model {
 		}
 	}
 
+	/**
+	 * Nodeがクリックされたかを判定し、処理する
+	 * @param aPoint クリックされた座標
+	 */
 	public void mouseClicked(Point aPoint) {
-		//System.out.println("model");
 		for(Node node : nodeList){
 			
 			Point point = node.getPoint();

@@ -1,51 +1,38 @@
 package forest;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import mvc.Controller;
 
+/**
+ * コントローラー　イベント処理を主に行う
+ */
 public class ForestController extends Controller {
 
 
 	private ForestModel forestModel;
 
+	/**
+	 * コンストラクター
+	 */
 	public ForestController(){
 		super();
 	}
 
+	/**
+	 * コンストラクター
+	 * @param forestModel model
+	 */
 	public ForestController(ForestModel forestModel) {
 		super();
 		this.forestModel = forestModel;
 	}
 
-	// @Override
-	// public void mouseEntered(MouseEvent aMouseEvent) {
-	// 	// TODO Auto-generated method stub
-	// 	return;
-	// }
-
-	// @Override
-	// public void mouseExited(MouseEvent aMouseEvent) {
-	// 	return;
-	// }
-
-	// @Override
-	// public void mouseReleased(MouseEvent aMouseEvent) {
-	// 	// TODO Auto-generated method stub
-	// 	Cursor aCursor = Cursor.getDefaultCursor();
-	// 	Component aComponent = (Component)aMouseEvent.getSource();
-	// 	aComponent.setCursor(aCursor);
-	// 	this.current = aMouseEvent.getPoint();
-	// 	this.previous = current;
-	// 	return;
-		
-	// }	
-
+	/**
+	 * マウスがクリックされた時の処理
+	 */
 	@Override
 	public void mouseClicked(MouseEvent aMouseEvent) {
-		//System.out.println("controller");
 		Point aPoint = aMouseEvent.getPoint();
 		aPoint.translate(view.scrollAmount().x, view.scrollAmount().y);
 		ForestModel amodel = (ForestModel)this.model;
@@ -53,17 +40,4 @@ public class ForestController extends Controller {
 		return;
 	}
 
-	// @Override
-	// public void mousePressed(MouseEvent aMouseEvent) {
-	// 	// // TODO Auto-generated method stub
-	// 	Cursor aCursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-	// 	Component aComponent = (Component)aMouseEvent.getSource();
-	// 	aComponent.setCursor(aCursor);
-	// 	current = aMouseEvent.getPoint();
-	// 	previous = current;
-	// 	return;
-		
-	// }
-
-	
 }
