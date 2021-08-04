@@ -1,0 +1,3 @@
+# いらないので除外
+.DS_Store
+.gitattributes
