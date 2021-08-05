@@ -19,6 +19,5 @@ public class ExampleTest
 	{
 		String aString = "京都産業大学";
 		assertEquals(aString.charAt(2), '産');
-		// assertEquals(aString.charAt(2), '業');
 	}
 }
