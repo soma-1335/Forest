@@ -46,6 +46,7 @@
 			<classpath>
 				<pathelement location="." />
 				<pathelement location="${mvc}.jar" />
+				<pathelement location="${junitjar}" />  <!-- これを追加 -->
 			</classpath>
 		</javac>
 		<exec executable="date" spawn="false" />
@@ -120,9 +121,9 @@
 	</target>
 
 	<target name="test" depends="all" description="test">
-		<exec executable="java" spawn="false">
+		<!-- <exec executable="java" spawn="false">
 			<arg line="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar ${package}.jar" />
-		</exec>
+		</exec> -->
 		<exec executable="date" spawn="false" />
 	</target>
 
