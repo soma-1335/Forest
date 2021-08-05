@@ -1,33 +1,46 @@
 package forest;
 
-import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.List;
 import java.util.Map;
 
 import mvc.View;
 
+/**
+ * View 表示周りを行う
+ */
+@SuppressWarnings("serial")
 public class ForestView extends View {
 
 	ForestModel model;
 
 	ForestController controller;
 
+	/**
+	 * コンストラクター
+	 * @param aModel Model
+	 */
 	public ForestView(ForestModel aModel){
 		super(aModel,new ForestController());
 		model = aModel;
 		
 	}
 
-
+	/**
+	 * コンストラクター
+	 * @param aModel Model
+	 * @param aController Controller
+	 */
 	public ForestView(ForestModel aModel, ForestController aController) {
 		super(aModel,aController);
 		model = aModel;
 		controller = aController;
 	}
 
+	/**
+	 * 描画を行う
+	 */
 	public void paintComponent(Graphics aGraphics) {
 		int width = this.getWidth();
 		int height = this.getHeight();
