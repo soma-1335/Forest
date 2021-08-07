@@ -270,10 +270,9 @@ th {
 <h3><a name="Example">Example</a></h3>
 </div>
 <pre>
-  package forest;
+package forest;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.io.File;
 import javax.swing.JFrame;
 
@@ -295,22 +294,21 @@ public class Example extends Object
 	 */
 	public static void main(String[] arguments)
 	{
-		// // 引数が無い（樹状整列データファイルの在り処がわからない）をチェックする。
-		// if (arguments.length < 1)
-		// {
-		// 	System.err.println("There are too few arguments.");
-		// 	System.exit(1);
-		// }
+		// 引数が無い（樹状整列データファイルの在り処がわからない）をチェックする。
+		if (arguments.length < 1)
+		{
+			System.err.println("There are too few arguments.");
+			System.exit(1);
+		}
 
-		// // 第1引数で指定された樹状整列データファイルの存在をチェックする。
-		// File aFile = new File(arguments[0]);
-		// if (!(aFile.exists()))
-		// {
-		// 	System.err.println("'" + aFile + "' does not exist.");
-		// 	System.exit(1);
-		// }
+		// 第1引数で指定された樹状整列データファイルの存在をチェックする。
+		File aFile = new File(arguments[0]);
+		if (!(aFile.exists()))
+		{
+			System.err.println("'" + aFile + "' does not exist.");
+			System.exit(1);
+		}
 
-		File aFile = new File("resource/data/semilattice.txt");
 
 		 // MVCを作成する。
 		ForestModel aModel = new ForestModel(aFile);
@@ -333,12 +331,13 @@ public class Example extends Object
 		return;
 	}
 }
+
 </pre>
 <div class="belt">
 <h3><a name="ForestModel">ForestModel</a></h3>
 </div>
 <pre>
-  package forest;
+package forest;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -351,19 +350,19 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import mvc.Model;
 
-
+/**
+ * moodel。ノードの情報を格納し、座標などの計算を行う。
+ * 
+ */
 public class ForestModel extends Model {
 	
 	private Map<String,String> deepMap; 
@@ -381,6 +380,10 @@ public class ForestModel extends Model {
 	private int base;
 
 
+	/**
+	 * コンストラクター。　このプログラムで使うデータを指定されたファイルから読み取りフィールドに束縛する。
+	 * @param file 木構造が示されたファイル
+	 */
 	public ForestModel(File file){
 		super();
 		List<String> aList = readFile(file);
@@ -435,6 +438,11 @@ public class ForestModel extends Model {
 	}
 
 
+	/**
+	 * ファイルの内容を読み取り、リストに一行ずつ格納する。
+	 * @param file 木構造が示されたファイル
+	 * @return ファイルの内容が一行ずつ格納されたリスト
+	 */
 	private List<String> readFile(File file){
 
 		List<String> aList = new ArrayList<String>();
@@ -455,6 +463,9 @@ public class ForestModel extends Model {
 		return aList;
 	}
 
+	/**
+	 * ファイルから読み取った各情報からNodeの設定をする。
+	 */
 	public void paform(){
 		nodeList = new ArrayList<Node>();
 		rootList = new ArrayList<Node>();
@@ -462,6 +473,7 @@ public class ForestModel extends Model {
 		
 		int x = 0;
 		int y = 0;
+
 		//Nodeに深さと名前を振る
 		for(var entrySet: deepMap.entrySet())
 		{
@@ -475,7 +487,6 @@ public class ForestModel extends Model {
 			}
 		}
 
-		//nodeList = notRepetition(nodeList);
 
 		//Nodeに番号を振る
 		for(var entrySet : indexMap.entrySet())
@@ -486,25 +497,9 @@ public class ForestModel extends Model {
 					nodeMap.put(entrySet.getKey(), node);
 				}
 			}
-			// nodeList.stream()
-			// 		.takeWhile(node -> node.getName().equals(entrySet.getValue()))
-			// 		.forEach(node -> node.addNumberList(entrySet.getKey()));
 		}
 
-		//Nodeに子要素を振る
-		for(var entrySet : linkMap.entrySet())
-		{
-			for(Node node: nodeList){
-				if(node.sameNumber(entrySet.getKey())){node.addchildrenNumber(entrySet.getValue());}
-			}
-			// nodeList.stream()
-			// 		.takeWhile(node -> node.sameNumberList(entrySet.getKey()))
-			// 		.forEach(node -> node.addchildrenNumber(entrySet.getValue()));
-		}
-
-
-		//rootList = nodeList.stream().takeWhile(node -> node.getDeep().equals(0)).collect(Collectors.toList());
-
+		// Nodeに子要素を振る
 		for(var entrySet : linkMap.entrySet())
 		{
 			Node node = nodeMap.get(Integer.valueOf(entrySet.getKey()));
@@ -515,35 +510,18 @@ public class ForestModel extends Model {
 		}
 	}
 
-	// //Node名が同じものをなくす
-	// public List<Node> notRepetition(List<Node> list){
-	// 	Set set = new HashSet<String>();
-	// 	List<Node> aList = list.stream().filter(str -> set.add(str.getName()))
-	// 						.collect(Collectors.toList());
-	// 	return aList;
-	// }
-
-
-	// public Integer getIndex(String str){
-	// 	Integer index = null;
-
-	// 	for(var set : indexMap.entrySet()){
-	// 		if(set.getValue().equals(str)){
-	// 			index = set.getKey();
-	// 		}
-	// 	}
-
-	// 	return index;
-	// }
-
-	public List<Node> getNodeList(){
-		return this.nodeList;
-	}
-
+	
+	/**
+	 * ノードが格納されたMapを応答する
+	 * @return Nodeが格納されたMap
+	 */
 	public Map<Integer, Node> getNodeMap(){
 		return this.nodeMap;
 	}
 
+	/**
+	 * Nodeのリストを表示する。
+	 */
 	public void animate(){
 		int height = 0;
 		for(Node node : this.nodeList){
@@ -552,6 +530,12 @@ public class ForestModel extends Model {
 		}
 	}
 
+	/**
+	 * Nodeのリストをアニメーションで表示する。
+	 * @param node 一つのノード
+	 * @param x　x座標
+	 * @param y　y座標
+	 */
 	public void animate(Node node,int x,int y){
 		int size = 16;
 		int move = 0;
@@ -615,8 +599,11 @@ public class ForestModel extends Model {
 		}
 	}
 
+	/**
+	 * Nodeがクリックされたかを判定し、処理する
+	 * @param aPoint クリックされた座標
+	 */
 	public void mouseClicked(Point aPoint) {
-		//System.out.println("model");
 		for(Node node : nodeList){
 			
 			Point point = node.getPoint();
@@ -628,59 +615,47 @@ public class ForestModel extends Model {
 		}
 	}
 }
+
 </pre>
 <div class="belt">
 <h3><a name="ForestController">ForestController</a></h3>
 </div>
 <pre>
-  package forest;
+package forest;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import mvc.Controller;
 
+/**
+ * コントローラー　イベント処理を主に行う
+ */
 public class ForestController extends Controller {
 
 
 	private ForestModel forestModel;
 
+	/**
+	 * コンストラクター
+	 */
 	public ForestController(){
 		super();
 	}
 
+	/**
+	 * コンストラクター
+	 * @param forestModel model
+	 */
 	public ForestController(ForestModel forestModel) {
 		super();
 		this.forestModel = forestModel;
 	}
 
-	// @Override
-	// public void mouseEntered(MouseEvent aMouseEvent) {
-	// 	// TODO Auto-generated method stub
-	// 	return;
-	// }
-
-	// @Override
-	// public void mouseExited(MouseEvent aMouseEvent) {
-	// 	return;
-	// }
-
-	// @Override
-	// public void mouseReleased(MouseEvent aMouseEvent) {
-	// 	// TODO Auto-generated method stub
-	// 	Cursor aCursor = Cursor.getDefaultCursor();
-	// 	Component aComponent = (Component)aMouseEvent.getSource();
-	// 	aComponent.setCursor(aCursor);
-	// 	this.current = aMouseEvent.getPoint();
-	// 	this.previous = current;
-	// 	return;
-		
-	// }	
-
+	/**
+	 * マウスがクリックされた時の処理
+	 */
 	@Override
 	public void mouseClicked(MouseEvent aMouseEvent) {
-		//System.out.println("controller");
 		Point aPoint = aMouseEvent.getPoint();
 		aPoint.translate(view.scrollAmount().x, view.scrollAmount().y);
 		ForestModel amodel = (ForestModel)this.model;
@@ -688,55 +663,56 @@ public class ForestController extends Controller {
 		return;
 	}
 
-	// @Override
-	// public void mousePressed(MouseEvent aMouseEvent) {
-	// 	// // TODO Auto-generated method stub
-	// 	Cursor aCursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-	// 	Component aComponent = (Component)aMouseEvent.getSource();
-	// 	aComponent.setCursor(aCursor);
-	// 	current = aMouseEvent.getPoint();
-	// 	previous = current;
-	// 	return;
-		
-	// }
-
-	
 }
+
 </pre>
 <div class="belt">
 <h3><a name="ForestView">ForestView</a></h3>
 </div>
 <pre>
-  package forest;
+package forest;
 
-import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.List;
 import java.util.Map;
 
 import mvc.View;
 
+/**
+ * View 表示周りを行う
+ */
+@SuppressWarnings("serial")
 public class ForestView extends View {
 
 	ForestModel model;
 
 	ForestController controller;
 
+	/**
+	 * コンストラクター
+	 * @param aModel Model
+	 */
 	public ForestView(ForestModel aModel){
 		super(aModel,new ForestController());
 		model = aModel;
 		
 	}
 
-
+	/**
+	 * コンストラクター
+	 * @param aModel Model
+	 * @param aController Controller
+	 */
 	public ForestView(ForestModel aModel, ForestController aController) {
 		super(aModel,aController);
 		model = aModel;
 		controller = aController;
 	}
 
+	/**
+	 * 描画を行う
+	 */
 	public void paintComponent(Graphics aGraphics) {
 		int width = this.getWidth();
 		int height = this.getHeight();
@@ -760,24 +736,27 @@ public class ForestView extends View {
 	}
 
 }
+
 </pre>
 <div class="belt">
 <h3><a name="Node">Node</a></h3>
 </div>
 <pre>
-  package forest;
+package forest;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JLabel;
 import javax.swing.border.LineBorder;
-
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Font;
 
+/**
+ * ノードの情報を格納するクラス
+ */
+@SuppressWarnings("serial")
 public class Node extends JLabel {
 
 	private Integer deep;
@@ -788,16 +767,123 @@ public class Node extends JLabel {
 
 	private Integer number;
 
-	private List<Integer> childrenNumber;
-
 	private List<Node> children;
-
-	private boolean compute = false;
 
 	private Dimension size;
 
 	private boolean initFlag = false;
 
+
+	/**
+	 * コンストラクター
+	 * @param deep ノードの深さ
+	 * @param name ノードの名前
+	 * @param x  ノードの初期x座標
+	 * @param y  ノードの初期y座標
+	 */
+	public Node(String deep, String name,int x, int y) {
+		this.deep = Integer.valueOf(deep);
+		this.name = name;
+		this.point = new Point(x,y);
+		setText(name);
+		setFont(new Font(Font.SERIF, Font.PLAIN, 12));
+		setBorder(new LineBorder(Color.BLACK, 1, false));
+		size = getPreferredSize();
+		setBounds(point.x, point.y,size.width, size.height);
+		this.children = new ArrayList<Node>();
+	}
+
+	/**
+	 * このNodeの名前を応答する
+	 * @return ノードの名前
+	 */
+	public String getName() {
+		return this.name;
+	}
+
+	/**
+	 * このNodeに子要素を格納する
+	 * @param このNodeの子要素
+	 * @return　追加に成功したか
+	 */
+	public boolean addChildren(Node node) {
+		children.add(node);
+		return 	true;
+	}
+
+	/**
+	 * このNodeを初期移動済みにする
+	 * @return 初期化済みかのフラグ
+	 */
+	public boolean inited(){
+		initFlag = true;
+		return initFlag;
+	}
+
+	/**
+	 * このNodeの初期移動済みかのフラグを応答する
+	 * @return 初期化済みかのフラグ
+	 */
+	public boolean getFlag(){
+		return initFlag;
+	}
+
+	/**
+	 * このNodeの番号をセットする
+	 * @param number このNodeの番号
+	 */
+	public void setNumber(Integer number) {
+		this.number = number;
+	}
+
+	/**
+	 * 子要素のリストを応答する
+	 * @return 子要素のリスト
+	 */
+	public List<Node> getChildren(){
+		return children;
+	}
+
+	/**
+	 * 子要素を持っているかを応答する
+	 * @return 子要素を持っているか
+	 */
+	public boolean haveChildren() {
+		return (this.children.isEmpty() || this.children.size() ==0) ? false : true;
+	}
+
+	/**
+	 * このNodeの座標を変更する
+	 * @param x x座標
+	 * @param y　Y座標
+	 * @return 成功したか
+	 */
+	public boolean computePoint(int x,int y) {
+		this.point.x = x;
+		this.point.y = y;
+		return true;
+	}
+
+	/**
+	 * このNodeの座標を応答する
+	 * @return Nodeの座標
+	 */
+	public Point getPoint() {
+		return this.point;
+	}
+
+	/**
+	 * このNodeのサイズを応答する
+	 * @return　このNodeのサイズ
+	 */
+	public Dimension getSize() {
+		return this.size;
+	}
+
+
+	/**
+	 * このオブジェクトを文字列にして応答する。
+	 */
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder("");
@@ -812,177 +898,8 @@ public class Node extends JLabel {
 
 		return stringBuilder.toString();
 	}
-
-	public Node(String deep, String name,int x, int y) {
-		this.deep = Integer.valueOf(deep);
-		this.name = name;
-		this.point = new Point(x,y);
-		setText(name);
-		setFont(new Font(Font.SERIF, Font.PLAIN, 12));
-		setBorder(new LineBorder(Color.BLACK, 1, false));
-		size = getPreferredSize();
-		setBounds(point.x, point.y,size.width, size.height);
-		this.childrenNumber = new ArrayList<Integer>();
-		this.children = new ArrayList<Node>();
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public boolean addChildren(Node node) {
-		children.add(node);
-		return 	true;
-	}
-
-	public boolean addchildrenNumber(String childrenNumber) {
-		String[] childrenNumbers = childrenNumber.split(",");
-		for(String child : childrenNumbers){
-			Integer number = Integer.valueOf(child);
-			this.childrenNumber.add(number);
-		}
-		return true;
-	}
-
-	public boolean inited(){
-		initFlag = true;
-		return initFlag;
-	}
-
-	public boolean getFlag(){
-		return initFlag;
-	}
-
-	public void setNumber(Integer number) {
-		this.number = number;
-	}
-
-	public Integer getNumber() {
-		return this.number;
-	}
-
-	public boolean sameNumber(String numString){
-		Integer num = Integer.valueOf(numString);
-		return this.number.equals(num)? true : false;
-	}
-
-	public boolean sameChildrenNumberList(Integer num){
-		
-		for(Integer value : this.childrenNumber)
-		{
-			if(value.equals(num)){return true;}
-		}
-		return false;
-	}
-
-	public List<Node> getChildren(){
-		return children;
-	}
-
-	public List<Integer> getchildrenNumber(int deep) {
-		return this.childrenNumber;
-	}
-
-	public boolean haveChildren() {
-		return (this.children.isEmpty() || this.children.size() ==0) ? false : true;
-	}
-
-	public boolean computePoint(int x,int y) {
-		this.point.x = x;
-		this.point.y = y;
-		return true;
-	}
-
-	public Point getPoint() {
-		return this.point;
-	}
-
-	public Dimension getSize() {
-		return this.size;
-	}
-
-	public Integer getDeep(){
-		return deep;
-	}
 }
 </pre>
-<div class="belt">
-<h3><a name="Root">Root</a></h3>
-</div>
-<pre>
-  package forest;
-
-import java.util.ArrayList;
-import java.awt.Point;
-
-public class Root {
-
-	private ArrayList roots;
-
-	public void Root() {
-
-	}
-
-	public ArrayList getRoots() {
-		return null;
-	}
-
-	public void setRoot(Point aPoint) {
-
-	}
-
-}
-</pre>
-<div class="belt">
-<h3><a name="Branch">Branch</a></h3>
-</div>
-<pre>
-package forest;
-
-import java.util.ArrayList;
-import java.awt.Point;
-
-public class Branch {
-
-	private Node NodeData;
-
-	private ArrayList leaves;
-
-	public void Branch(Node NodeData) {
-
-	}
-
-	public ArrayList getLeaves() {
-		return null;
-	}
-
-	public void setBranch(Point Points) {
-
-	}
-
-}
-</pre>
-<div class="belt">
-<h3><a name="Constants">Constants</a></h3>
-</div>
-<pre>
-package forest;
-
-public class Constants extends Object {
-
-	public String TREE = "tree.txt";
-
-	public String FOREST = "forest.txt";
-
-	public String SEMILATTICE = "semilattice.txt";
-
-	public int WINDOW_HEIGHT;
-
-	public int WINDOW_WIDTH;
-
-	public int INTERVAL;
-
-}</pre>
 <hr>
 <div class="right-small">Copyright 20xx Project xx, Updated: 2017/03/13 (Created: 2009/11/11)</div>
 </body>
