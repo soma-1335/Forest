@@ -26,3 +26,11 @@ doc:
 
 zip:
 	$(ANT) zip
+
+# 以下を追加、単体テストのために。
+unittest:
+	$(ANT) unittest
+
+# 以下を追加、アサーションのために。
+assert:
+	$(ANT) assert
