@@ -10,6 +10,17 @@
 	<property name="instdir" value="./${ant.project.name}.app/Contents/Resources/Java" />
 	<property name="copyright" value="Copyright 2008-2017 AOKI Atsushi. All Rights Reserved." />
 	<property name="zipname" value="${ant.project.name}" />
+	<property name="junitjar" value="./junit-platform-console-standalone-1.7.0.jar" />  <!-- これを追加 -->
+	<property name="reportdir" value="./test-report" />  <!-- これを追加 -->
+
+	<!-- 以下を追加、単体テストのために。バージョンが1.10.4未満ではjunitlauncherが未サポートゆえに。 -->
+	<fail message="Apache Ant 1.10.4+ is required.">
+		<condition>
+			<not>
+				<antversion atleast="1.10.4"/>
+			</not>
+		</condition>
+	</fail>
 
 	<target name="all" depends="jar" description="build all">
 		<exec executable="date" spawn="false" />
@@ -17,6 +28,7 @@
 
 	<target name="prepare" depends="" description="prepare to compile">
 		<mkdir dir="${destdir}" />
+		<copy file="./JUnitArchives/${junitjar}" todir="./" />  <!-- これを追加 -->
 		<exec executable="date" spawn="false" />
 	</target>
 
@@ -34,6 +46,7 @@
 			<classpath>
 				<pathelement location="." />
 				<pathelement location="${mvc}.jar" />
+				<pathelement location="${junitjar}" />  <!-- これを追加 -->
 			</classpath>
 		</javac>
 		<exec executable="date" spawn="false" />
@@ -45,6 +58,7 @@
 			basedir="${destdir}"
 			manifest="${package}.mf">
 			<zipfileset src="${mvc}.jar" />
+			<zipfileset src="${junitjar}" />  <!-- これを追加 -->
 		</jar>
 		<exec executable="date" spawn="false" />
 	</target>
@@ -58,10 +72,66 @@
 		<delete>
 			<fileset dir="${package}" includes="*.class" />
 		</delete>
+		<delete file="${junitjar}" />  <!-- これを追加 -->
+		<delete dir="${reportdir}" />  <!-- これを追加 -->
 		<exec executable="date" spawn="false" />
 	</target>
 
-	<target name="test" depends="all,tree" description="test">
+	<!-- 以下を追加、単体テストのために。junit.launcher -->
+	<target name="unittest.junit.launcher" depends="all"  description="junit launcher">
+		<delete dir="${reportdir}" />
+		<junitlauncher haltOnFailure="true" printSummary="true">
+			<classpath>
+				<pathelement location="." />
+				<pathelement location="${junitjar}" />
+			</classpath>
+			<testclasses outputdir="${reportdir}">
+				<fileset dir="${destdir}">
+					<include name="*Test.class"/>
+				</fileset>
+				<listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+				<listener type="legacy-plain" sendSysOut="true" />
+			</testclasses>
+		</junitlauncher>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<!-- 以下を追加、単体テストのために。console.launcher -->
+	<target name="unittest.console.launcher" depends="all"  description="console launcher">
+		<java classpath="${package}.jar" classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="false">
+			<arg value="--scan-class-path=${destdir}" />
+			<arg line="--reports-dir ${reportdir}" />
+			<jvmarg value="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k" />
+		</java>
+		<junitreport todir="${reportdir}">
+			<fileset dir="${reportdir}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<report format="noframes" todir="${reportdir}/html"/>
+		</junitreport>
+		<exec executable="open" spawn="true">
+			<arg line="-a 'Safari' ${reportdir}/html/junit-noframes.html" />
+		</exec>
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<!-- 以下を追加、単体テストのために。 -->
+	<target name="unittest" depends="unittest.junit.launcher, unittest.console.launcher">
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<target name="test" depends="all" description="test">
+		<!-- <exec executable="java" spawn="false">
+			<arg line="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -jar ${package}.jar" />
+		</exec> -->
+		<exec executable="date" spawn="false" />
+	</target>
+
+	<!-- 以下を追加、アサーションのために。「-ea」のオブションを追加していることに注意して。 -->
+	<target name="assert" depends="all" description="assert">
+		<exec executable="java" spawn="false">
+			<arg line="-Dfile.encoding=UTF-8 -Xmx512m -Xss1024k -ea -jar ${package}.jar" />
+		</exec>
 		<exec executable="date" spawn="false" />
 	</target>
 
@@ -115,6 +185,7 @@
 			<classpath>
 				<pathelement location="." />
 				<pathelement location="${mvc}.jar" />
+				<pathelement location="${junitjar}" />  <!-- これを追加 -->
 			</classpath>
 		</javadoc>
 		<exec executable="open">
